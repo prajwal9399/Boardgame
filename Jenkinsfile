@@ -1,27 +1,45 @@
 pipeline {
     agent any
-    
-    tools {
-        jdk 'jdk17'
-        maven 'maven3'
-    }
-    
-    stages {   
-        stage('Compile') {
+
+    stages {
+        stage('Checkout') {
             steps {
-            sh 'mvn compile'
+                git branch: 'main', url: 'https://github.com/prajwal9399/Boardgame.git'
             }
         }
-        
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
         stage('Test') {
             steps {
                 sh 'mvn test'
             }
         }
-        
-        stage('Build') {
+        stage('Build JAR') {
             steps {
-                sh 'mvn package'
+                sh 'mvn package -DskipTests'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t boardgame:latest .'
+            }
+        }
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f boardgame-container || true'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh 'docker run -d --name boardgame-container -p 8081:8080 boardgame:latest'
+            }
+        }
+        stage('Verify') {
+            steps {
+                sh 'sleep 10 && docker ps | grep boardgame-container'
             }
         }
     }
