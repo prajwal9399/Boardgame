@@ -23,7 +23,6 @@
     		<sonar.language>java</sonar.language>
 		
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>
@@ -33,7 +32,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -58,6 +56,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -70,14 +69,7 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-    <groupId>org.jacoco</groupId> 
-    <artifactId>jacoco-maven-plugin</artifactId>
-    <version>1.18.32</version>
-</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -92,7 +84,6 @@
 					</excludes>
 				</configuration>
 			</plugin>
-
 			<plugin>
     <groupId>org.jacoco</groupId>
     <artifactId>jacoco-maven-plugin</artifactId>
@@ -115,8 +106,6 @@
 </plugin>
 		</plugins>
 	</build>
-
-
  <distributionManagement>
   <repository>
     <id>maven-releases</id>
@@ -127,8 +116,5 @@
     <url>http://13.127.177.61:8081/repository/maven-snapshots/</url>
   </snapshotRepository>
 </distributionManagement>
-
-
 	
-
 </project>
