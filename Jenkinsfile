@@ -1,71 +1,46 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_REGION = 'ap-southeast-1'
-        ECR_REGISTRY = '812751451654.dkr.ecr.ap-southeast-1.amazonaws.com'
-        ECR_REPOSITORY = 'boardgame-local'
-        IMAGE_TAG = 'latest'
-        CONTAINER_NAME = 'boardgame-container'
-        HOST_PORT = '8081'
-        CONTAINER_PORT = '8080'
-    }
-
     stages {
-
-        stage('Login to ECR') {
+        stage('Checkout') {
             steps {
-                sh '''
-                    aws ecr get-login-password --region ${AWS_REGION} | \
-                    docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                '''
+                git branch: 'main', url: 'https://github.com/prajwal9399/Boardgame.git'
             }
         }
-
-        stage('Pull Image from ECR') {
+        stage('Compile') {
             steps {
-                sh '''
-                    docker pull ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-                '''
+                sh 'mvn compile'
             }
         }
-
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Build JAR') {
+            steps {
+                sh 'mvn package -DskipTests'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t boardgame:latest .'
+            }
+        }
         stage('Stop Old Container') {
             steps {
-                sh '''
-                    docker rm -f ${CONTAINER_NAME} || true
-                '''
+                sh 'docker rm -f boardgame-container || true'
             }
         }
-
-        stage('Deploy Container') {
+        stage('Deploy') {
             steps {
-                sh '''
-                    docker run -d \
-                      --name ${CONTAINER_NAME} \
-                      -p ${HOST_PORT}:${CONTAINER_PORT} \
-                      ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-                '''
+                sh 'docker run -d --name boardgame-container -p 8081:8080 boardgame:latest'
             }
         }
-
-        stage('Verify Deployment') {
+        stage('Verify') {
             steps {
-                sh '''
-                    sleep 5
-                    docker ps --filter name=${CONTAINER_NAME}
-                '''
+                sh 'sleep 10 && docker ps | grep boardgame-container'
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Boardgame deployment successful!'
-        }
-
-        failure {
-            echo 'Boardgame deployment failed!'
         }
     }
 }
